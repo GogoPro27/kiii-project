@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: books-backend
+  data:
+    mongodb:
+      uri: ${MONGO_URI:mongodb://localhost:27017/booksdb}
+
+server:
+  port: ${SERVER_PORT:8080}
+
+# Make sure Java time types are serialized as ISO-8601 strings
+spring.jackson.serialization.WRITE_DATES_AS_TIMESTAMPS: false
