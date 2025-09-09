@@ -2,11 +2,11 @@ name: CI
 
 on:
   push:
-    branches: [ "**" ]
+    branches: ["**"]
     paths:
       - "books-backend/**"
       - "books-frontend/**"
-      - "docker-compose.yml"
+      - "docker-compose.yml"     # kept in triggers in case it changes local dev; CI uses services
       - ".github/workflows/ci.yml"
   pull_request:
     paths:
@@ -31,6 +31,18 @@ jobs:
   backend:
     name: Backend (Spring Boot + Maven)
     runs-on: ubuntu-latest
+
+    services:
+      mongo:
+        image: mongo:7
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd="mongosh --eval 'db.runCommand({ ping: 1 })' || exit 1"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=12
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -42,28 +54,19 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
           cache: maven
 
-      - name: Start MongoDB via Docker Compose
-        run: |
-          docker compose -f docker-compose.yml up -d
-          # Wait for MongoDB to accept connections on 27017
-          for i in {1..60}; do
-            nc -z 127.0.0.1 27017 && echo "MongoDB is up" && break
-            echo "Waiting for MongoDB ($i/60)…"
-            sleep 2
-          done
-          nc -z 127.0.0.1 27017 || (echo "MongoDB did not start in time" && docker compose logs && exit 1)
-
       - name: Make Maven wrapper executable (if present)
+        working-directory: books-backend
         run: |
-          if [ -f books-backend/mvnw ]; then chmod +x books-backend/mvnw; fi
+          if [ -f mvnw ]; then chmod +x mvnw; fi
 
       - name: Test (Maven)
+        working-directory: books-backend
         env:
           SPRING_DATA_MONGODB_URI: ${{ env.MONGODB_URI }}
         run: |
-          MVN="mvn"
-          [ -f "books-backend/mvnw" ] && MVN="./mvnw"
-          $MVN -f books-backend/pom.xml -B -ntp clean verify
+          MVN="./mvnw"
+          [ -f "./mvnw" ] || MVN="mvn"
+          $MVN -B -ntp clean verify -Dspring.data.mongodb.uri="${{ env.MONGODB_URI }}"
 
       - name: Upload backend test reports
         if: always()
@@ -75,13 +78,10 @@ jobs:
             books-backend/**/target/failsafe-reports/**
           if-no-files-found: ignore
 
-      - name: Stop Docker Compose
-        if: always()
-        run: docker compose -f docker-compose.yml down -v
-
   frontend:
     name: Frontend (React)
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -92,6 +92,11 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: "npm"
           cache-dependency-path: books-frontend/package-lock.json
+
+      - name: Show Node & npm versions
+        run: |
+          echo "Node: $(node -v)"
+          echo "npm:  $(npm -v)"
 
       - name: Install dependencies
         working-directory: books-frontend
