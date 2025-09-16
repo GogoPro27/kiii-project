@@ -1,0 +1,46 @@
+# render.yaml
+services:
+  # --- MongoDB (private) ---
+  - type: pserv
+    name: mongodb
+    runtime: image
+    image:
+      url: docker.io/library/mongo:6.0
+    plan: starter
+    autoDeploy: false
+    disk:
+      name: mongodb-data
+      mountPath: /data/db
+      sizeGB: 5
+
+  # --- Backend (Spring Boot) ---
+  - type: web
+    name: books-backend
+    runtime: image
+    image:
+      # default tag; CD will override with an exact sha using Deploy Hook + imgURL
+      url: docker.io/${DOCKER_USERNAME}/books-backend:latest
+    region: frankfurt
+    plan: starter
+    envVars:
+      - key: SPRING_DATA_MONGODB_URI
+        value: mongodb://mongodb:27017/booksdb
+      # add anything else your backend needs as env vars here
+
+  # --- Frontend (React/Vite/CRA) ---
+  - type: web
+    name: books-frontend
+    runtime: image
+    image:
+      url: docker.io/${DOCKER_USERNAME}/books-frontend:latest
+    region: frankfurt
+    plan: starter
+    envVars:
+      # If your frontend needs the backend URL at build/runtime, set it here.
+      # Pick the variable your app expects (e.g., VITE_API_URL or REACT_APP_API_URL).
+      - key: VITE_API_URL
+        value: https://books-backend.onrender.com
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
