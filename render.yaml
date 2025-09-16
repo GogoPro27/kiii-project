@@ -12,6 +12,9 @@ services:
       name: mongodb-data
       mountPath: /data/db
       sizeGB: 5
+    envVars:
+      - key: MONGO_INITDB_DATABASE
+        value: booksdb
 
   # --- Backend (Spring Boot) ---
   - type: web
@@ -22,10 +25,13 @@ services:
       url: docker.io/${DOCKER_USERNAME}/books-backend:latest
     region: frankfurt
     plan: starter
+    autoDeploy: false
     envVars:
       - key: SPRING_DATA_MONGODB_URI
         value: mongodb://mongodb:27017/booksdb
-      # add anything else your backend needs as env vars here
+      - key: SERVER_PORT
+        value: "10000"
+    healthCheckPath: /actuator/health
 
   # --- Frontend (React/Vite/CRA) ---
   - type: web
@@ -35,11 +41,14 @@ services:
       url: docker.io/${DOCKER_USERNAME}/books-frontend:latest
     region: frankfurt
     plan: starter
+    autoDeploy: false
     envVars:
       # If your frontend needs the backend URL at build/runtime, set it here.
       # Pick the variable your app expects (e.g., VITE_API_URL or REACT_APP_API_URL).
       - key: VITE_API_URL
         value: https://books-backend.onrender.com
+      - key: PORT
+        value: "10000"
     routes:
       - type: rewrite
         source: /*
