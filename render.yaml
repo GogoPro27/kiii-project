@@ -22,7 +22,7 @@ services:
     runtime: image
     image:
       # default tag; CD will override with an exact sha using Deploy Hook + imgURL
-      url: docker.io/${DOCKER_USERNAME}/books-backend:latest
+      url: docker.io/gochot/books-backend:latest
     region: frankfurt
     plan: starter
     autoDeploy: false
@@ -38,7 +38,7 @@ services:
     name: books-frontend
     runtime: image
     image:
-      url: docker.io/${DOCKER_USERNAME}/books-frontend:latest
+      url: docker.io/gochot/books-frontend:latest
     region: frankfurt
     plan: starter
     autoDeploy: false
