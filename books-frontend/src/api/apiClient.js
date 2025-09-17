@@ -1,4 +1,5 @@
 const base = import.meta.env.VITE_API_BASE || "http://backend:8080/api";
+console.log("base", base);
 
 async function request(path, options = {}) {
   const res = await fetch(`${base}${path}`, {
