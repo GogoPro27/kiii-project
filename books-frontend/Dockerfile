@@ -1,5 +1,8 @@
 FROM node:18-alpine
 
+ARG VITE_API_BASE=localhost:8080/api
+ENV VITE_API_BASE=$VITE_API_BASE
+
 WORKDIR /app
 
 COPY package*.json ./

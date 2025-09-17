@@ -50,6 +50,8 @@ jobs:
           context: ./books-frontend
           push: true
           platforms: linux/amd64,linux/arm64
+          build-args: |
+            VITE_API_BASE=/api
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/books-frontend:latest
             ${{ secrets.DOCKER_USERNAME }}/books-frontend:${{ github.sha }}
