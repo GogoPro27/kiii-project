@@ -1,4 +1,4 @@
-const base = import.meta.env.VITE_API_BASE || "http://localhost:8080/api";
+const base = import.meta.env.VITE_API_BASE + "/api" || "http://localhost:8080/api";
 console.log("base", base);
 
 async function request(path, options = {}) {
