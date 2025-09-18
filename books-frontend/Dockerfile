@@ -10,7 +10,6 @@ RUN npm ci
 
 COPY . .
 
-# Build the app; Vite copies public/* into dist/, so runtime-config.js.template ends up in /app/dist
 RUN npm run build
 
 EXPOSE 3000
