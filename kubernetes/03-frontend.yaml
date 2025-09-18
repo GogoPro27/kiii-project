@@ -22,12 +22,12 @@ spec:
               name: http
           readinessProbe:
             tcpSocket:
-              port: 3000
+              port: "http"
             initialDelaySeconds: 5
             periodSeconds: 5
           livenessProbe:
             tcpSocket:
-              port: 3000
+              port: "http"
             initialDelaySeconds: 15
             periodSeconds: 10
 
@@ -43,5 +43,5 @@ spec:
   ports:
     - name: http
       port: 3000
-      targetPort: 3000
+      targetPort: http
   type: ClusterIP
