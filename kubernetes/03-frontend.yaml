@@ -20,9 +20,6 @@ spec:
           ports:
             - containerPort: 3000
               name: http
-          env:
-            - name: VITE_API_BASE
-              value: /api
           readinessProbe:
             tcpSocket:
               port: 3000
