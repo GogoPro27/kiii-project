@@ -1,0 +1,3 @@
+window.__ENV__ = {
+    IS_AZURE: "${IS_AZURE:-false}"
+};

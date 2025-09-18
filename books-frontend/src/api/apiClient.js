@@ -1,3 +1,13 @@
+
+  function getIsAzure() {
+    const raw = window.__ENV && window.__ENV.IS_AZURE;
+    if (raw === true) return true;
+    if (raw === false) return false;
+    if (typeof raw === "string") return raw.toLowerCase() === "true";
+    return false;
+}
+console.log("IS_AZURE", getIsAzure());
+
 const base = import.meta.env.VITE_API_BASE + "/api";
 console.log("base", base);
 
